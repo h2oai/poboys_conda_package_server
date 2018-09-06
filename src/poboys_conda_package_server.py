@@ -123,8 +123,9 @@ def do_upload():
             reindex_platform_dir(platform_dir)
             abort(503, "Failed to upload to S3 %s with exception %s" % (s3_bucket, str(e)))
 
+    message = "{filename} uploaded".format(filename=filename).encode('ascii')
     redirect(prefix + '/pkgs/' + platform
-             + '?' + 'message={msg}'.format(msg=base64.urlsafe_b64encode('{filename} uploaded'.format(filename=filename)).decode('ascii').rstrip()))
+             + '?' + 'message={msg}'.format(msg=base64.urlsafe_b64encode(message).decode('ascii').rstrip()))
 
 
 @get('/pkgs')
