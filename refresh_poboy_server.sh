@@ -73,16 +73,16 @@ check_stop_container() {
 }
 
 remove_container_image() {
-    image_id=$(docker image ls -a --format "{{.Repository}},{{.ID}}" | grep "${IMAGE_NAME}" | cut -d "," -f 2)
+    image_id=$(docker image ls -a --format "{{.Repository}},{{.ID}}" | grep "${IMAGE_NAME}" | grep -v "docker.h2o.ai" | cut -d "," -f 2)
     if [[ -n "${image_id}" ]]; then
-        docker image rm "${image_id}"
+        docker image rm -f "${image_id}"
     fi
 }
 
 remove_base_image() {
-    image_id=$(docker image ls -a --format "{{.Repository}},{{.ID}}" | grep "${BASE_IMAGE_NAME}" | cut -d "," -f 2)
+    image_id=$(docker image ls -a --format "{{.Repository}},{{.ID}}" | grep "${BASE_IMAGE_NAME}" | grep -v "docker.h2o.ai" | cut -d "," -f 2)
     if [[ -n "${image_id}" ]]; then
-        docker image rm "${image_id}"
+        docker image rm -f "${image_id}"
     fi
 }
 
