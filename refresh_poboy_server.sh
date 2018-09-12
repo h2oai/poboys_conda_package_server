@@ -7,7 +7,7 @@
 # > If poboy's server is running as a docker container, stop the container.
 # > Remove any poboy server docker images (if any) post the container shutdown.
 # > If --refreshbase is provided then base docker image is also refreshed.
-# > Pull latest codebase from Git Repository
+# > If --localsource is not specified, pull latest codebase from Git Repository (default), or use source from local dir
 # > Build a new poboy server docker image (if refreshbase is passed then first base image will be built)
 # > Start container with the new built image, ensuring the repo directory is mapped correctly.
 
@@ -16,6 +16,7 @@ CONTAINER_NAME="poboys_conda_server"
 IMAGE_NAME="poboys_conda_package_server"
 BASE_IMAGE_NAME="poboys_base_image"
 REFRESH_BASE=false
+REFRESH_SOURCE=true
 
 usage() {
 cat << USAGE
@@ -26,6 +27,7 @@ A script to refresh poboy's conda repository server to the latest code in the gi
 Options:
     -h                  Show this usage message
     --refreshbase       Optional. Refresh base docker image of poboy's server.
+    --localsource       Optional. Do not update local source from git. Uses local source to build docker images
 
 USAGE
 }
@@ -50,7 +52,11 @@ get_options() {
                 shift
                 REFRESH_BASE=true
                 ;;
-             -h | --help )
+            --localsource )
+                shift
+                REFRESH_SOURCE=false
+                ;;
+            -h | --help )
                 usage
                 exit 0
                 ;;
@@ -116,8 +122,8 @@ main() {
     get_options $@
     check_stop_container || error "Docker container could not be removed" $?
     remove_container_image || error "Docker image could not be removed" $?
-    $REFRESH_BASE && ( remove_base_image && build_base_image || error "Base image could not be refreshed" $? )
-    git_pull_latest || error "Unable to pull latest code from git" $?
+    ${REFRESH_BASE} && ( remove_base_image && build_base_image || error "Base image could not be refreshed" $? )
+    ${REFRESH_SOURCE} && ( git_pull_latest || error "Unable to pull latest code from git" $? )
     build_docker_image || error "Unable to build docker image" $?
     start_poboy_conda_server || error "Unable to start poboy server docker image" $?
 }
