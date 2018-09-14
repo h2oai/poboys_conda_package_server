@@ -53,6 +53,8 @@ if args.ac_user and args.ac_pass:
 if args.ac_org:
     anaconda_org = args.ac_org
 
+# disable upload to s3
+s3_bucket = None
 
 platforms = ['noarch', 'linux-64', 'win-64', 'osx-64', 'linux-ppc64le']
 
