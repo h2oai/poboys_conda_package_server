@@ -56,7 +56,6 @@ if args.ac_org:
 
 platforms = ['noarch', 'linux-64', 'win-64', 'osx-64', 'linux-ppc64le']
 
-
 def ensure_pkgs_dir_exists():
     try: 
         os.makedirs('pkgs')
@@ -90,6 +89,10 @@ def reindex_platform_dir(platform_dir):
     return ['repodata.json', 'repodata.json.bz2', '.index.json']
 
 
+def reindex_channel():
+    call(["conda", "index", "pkgs"])
+
+
 @get('/')
 @get(prefix + '/')
 def index():
@@ -106,7 +109,8 @@ def do_upload():
     platform_dir = ensure_platform_dir_exists(platform)
 
     fileupload.save(platform_dir, overwrite=False)
-    index_filenames = reindex_platform_dir(platform_dir)
+#   index_filenames = reindex_platform_dir(platform_dir)
+    reindex_channel()
 
     # upload to S3 if requested
     if s3_bucket:
@@ -120,7 +124,8 @@ def do_upload():
         except Exception as e:
             # something went wrong.  Undo everything and bail
             os.remove(os.path.join(platform_dir, filename))
-            reindex_platform_dir(platform_dir)
+            # reindex_platform_dir(platform_dir)
+            reindex_channel()
             abort(503, "Failed to upload to S3 %s with exception %s" % (s3_bucket, str(e)))
 
     message = "{filename} uploaded".format(filename=filename).encode('ascii')
@@ -190,7 +195,8 @@ def del_file(platform, filename):
     except OSError:
         pass
 
-    index_filenames = reindex_platform_dir(platform_dir)
+    # index_filenames = reindex_platform_dir(platform_dir)
+    reindex_channel()
 
     # delete from S3 if requested
     if s3_bucket:
@@ -203,7 +209,8 @@ def del_file(platform, filename):
         except Exception as e:
             # something went wrong.  Undo everything and bail
             os.rename(os.path.join(tempdir, filename), os.path.join(platform_dir, filename))
-            reindex_platform_dir(platform_dir) 
+            # reindex_platform_dir(platform_dir)
+            reindex_channel()
             abort(503, "Failed to delete from S3 bucket %s with exception %s" % (s3_bucket, str(e)))
 
     # commit the delete
@@ -242,12 +249,11 @@ def release_file(platform, filename):
 
 
 if __name__ == '__main__':
+    # ensure all supported platform dirs exist, create if required
     for platform in platforms:
         ensure_platform_dir_exists(platform)
-        os.chdir('pkgs/'+platform)
-        call(["conda", "index"])
-        os.chdir('../../')
 
+    reindex_channel()
     app = default_app()
 
     log.info("Serving on port %d" % args.port)
