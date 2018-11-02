@@ -11,7 +11,7 @@
 # > Build a new poboy server docker image (if refreshbase is passed then first base image will be built)
 # > Start container with the new built image, ensuring the repo directory is mapped correctly.
 
-SCRIPT_NAME=$(basename $0)
+SCRIPT_NAME=$(basename "${0}")
 CONTAINER_NAME="poboys_conda_server"
 IMAGE_NAME="poboys_conda_package_server"
 BASE_IMAGE_NAME="poboys_base_image"
@@ -20,14 +20,14 @@ REFRESH_SOURCE=true
 
 usage() {
 cat << USAGE
-Usage: refresh_poboys_server.sh [-h] [--refreshbase]
+Usage: refresh_poboys_server.sh [-h] [--refreshbase] [--localsource]
 
 A script to refresh poboy's conda repository server to the latest code in the git repository.
 
 Options:
     -h                  Show this usage message
-    --refreshbase       Optional. Refresh base docker image of poboy's server.
-    --localsource       Optional. Do not update local source from git. Uses local source to build docker images
+    --refreshbase       Optional. Refresh base docker image of poboy's server. By default, base is not refreshed.
+    --localsource       Optional. Use local source to build poboy server image. By default, latest code from master is pulled. 
 
 USAGE
 }
@@ -40,8 +40,8 @@ log() {
 error() {
     # Write message($1) to stderr and exit
     # If exit_code($2) is passed then exit with that code, else default exit code is 1
-    echo "[${SCRIPT_NAME}]: $1" > /dev/stderr
-    [[ $# -gt 1 ]] && exit $2
+    echo "[${SCRIPT_NAME}]: ${1}" > /dev/stderr
+    [[ $# -gt 1 ]] && exit "${2}"
     exit 1
 }
 
@@ -114,18 +114,18 @@ start_poboy_conda_server() {
               -e POBOYS_S3_BUCKET \
               -e AWS_ACCESS_KEY_ID \
               -e AWS_SECRET_ACCESS_KEY \
-              -v $(pwd)/../conda-repo-root:/opt/"${IMAGE_NAME}" \
+              -v "$(pwd)"/../conda-repo-root:/opt/"${IMAGE_NAME}" \
               "${IMAGE_NAME}"
 }
 
 main() {
-    get_options $@
+    get_options "$@"
     check_stop_container || error "Docker container could not be removed" $?
     remove_container_image || error "Docker image could not be removed" $?
-    ${REFRESH_BASE} && ( remove_base_image && build_base_image || error "Base image could not be refreshed" $? )
+    ${REFRESH_BASE} && ( (remove_base_image && build_base_image) || error "Base image could not be refreshed" $? )
     ${REFRESH_SOURCE} && ( git_pull_latest || error "Unable to pull latest code from git" $? )
     build_docker_image || error "Unable to build docker image" $?
     start_poboy_conda_server || error "Unable to start poboy server docker image" $?
 }
 
-main $@
+main "$@"
