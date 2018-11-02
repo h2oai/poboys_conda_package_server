@@ -236,7 +236,7 @@ def release_file(platform, filename):
 
     upload_commands = """
     anaconda logout &&
-    anaconda login --username {username} --password {password} &&
+    yes | anaconda login --username {username} --password {password} &&
     anaconda upload --no-progress -u {org} {file} &&
     anaconda logout
     """.format(username=anaconda_user,
