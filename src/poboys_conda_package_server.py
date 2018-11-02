@@ -235,6 +235,7 @@ def release_file(platform, filename):
     ensure_platform_dir_exists(platform)
 
     upload_commands = """
+    anaconda logout &&
     anaconda login --username {username} --password {password} &&
     anaconda upload --no-progress -u {org} {file} &&
     anaconda logout
