@@ -82,7 +82,8 @@ The Release build pipeline in jenkins is configured to upload the conda build ar
 
 - Currently the artifacts are being generated in `linux-64` and `noarch` sub-directories in the `pkgs` channel.
 - In each of these directories a file `keepfiles.txt` is used to keep the list of files that should not be deleted. Periodically update this file to only include the files that need to be preserved.
-- Once the file is updated run `cleanup.sh`. This will remove all the files that are not mentioned in `keepfiles.txt`
+- Once the file is updated run `cleanup.sh`. This will remove all the files that are not mentioned in `keepfiles.txt
+- Then initiate a manual reindex using the command `cd /opt/poboys_conda_package_server && conda index pkgs` 
 
 
 
