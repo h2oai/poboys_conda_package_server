@@ -1,0 +1,19 @@
+version: '2'
+services:
+  PoboysCondaRepositoryServer:
+    image: harbor.h2o.ai/opsh2oai/poboys_conda_package_server
+    hostname: poboys
+    environment:
+      ANACONDA_USERNAME: deleted_ask_anmol 
+      ANACONDA_PASSWORD: deleted_ask_anmol 
+    working_dir: /opt/poboys_staging
+    volumes:
+    - poboys_conda_repo_volume:/opt/poboys_conda_package_server
+    domainname: 0xdata.loc
+    ports:
+    - 6969:6969/tcp
+    command:
+    - /bin/bash
+    - start_from_docker.sh
+    labels:
+      io.rancher.container.pull_image: always
