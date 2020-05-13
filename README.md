@@ -70,8 +70,8 @@ In case there is need to enhance capability in Poboy's we would need to refresh 
 
 * Ensure latest code is pushed to master. To build poboy's image from the latest  master DO NOT use `--localsource` option. It is useful mainly for local development cycle.
 * `./refresh_poboy_server.sh` without any options will recreate the poboys_conda_package_server docker image
-* Tag the latest image for dployment to docker.h2o.ai repo `docker tag poboys_conda_package_server:latest docker.h2o.ai/poboys_conda_package_server:latest`
-* If needed login to the internal docker repo `docker login docker.h2o.ai` with user `h2oai` (ask Anmol for password) and then push the image `docker push docker.h2o.ai/poboys_conda_package_server:latest`
+* Tag the latest image for dployment to docker.h2o.ai repo `docker tag poboys_conda_package_server:latest harbor.h2o.ai/opsh2oai/poboys_conda_package_server:latest`
+* If needed login to the internal docker repo `docker login harbor.h2o.ai` with user `h2oai` (ask Anmol for password) and then push the image `docker push harbor.h2o.ai/opsh2oai/poboys_conda_package_server:latest`
 * In rancher search for poboy's stack and perform an `Upgrade`. This will cause the existing container to stop and a new container to be deployed with the latest docker image.
 
 NOTE : Ensure the base image is updated periodically to use the latest conda and anaconda-client versions..or else we get weird issues !!!!! 
